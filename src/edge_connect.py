@@ -302,6 +302,11 @@ class EdgeConnect():
             batch_size=1,
         )
 
+        self.edge_model.remove_spectralnorm()
+
+        self.edge_model.export()
+        self.inpaint_model.export()
+
         index = 0
         for items in test_loader:
             name = self.test_dataset.load_name(index)

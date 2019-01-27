@@ -113,6 +113,16 @@ class Dataset(torch.utils.data.Dataset):
 
             return edge
 
+    def get_mask(self, filename):
+        imgdata = imread(filename)
+        h, w = imgdata.shape[0:2]
+        mask = np.zeros((h, w))
+        for y in range(h):
+            for x in range(w):
+                if np.linalg.norm(imgdata[y][x]-[255,255,255]) < 8.66:
+                    mask[y][x] = 1
+        return mask
+
     def load_mask(self, img, index):
         imgh, imgw = img.shape[0:2]
         mask_type = self.mask
@@ -144,7 +154,7 @@ class Dataset(torch.utils.data.Dataset):
 
         # test mode: load mask non random
         if mask_type == 6:
-            mask = imread(self.mask_data[index])
+            mask = self.get_mask(self.data[index])
             mask = self.resize(mask, imgh, imgw, centerCrop=False)
             mask = rgb2gray(mask)
             mask = (mask > 0).astype(np.uint8) * 255

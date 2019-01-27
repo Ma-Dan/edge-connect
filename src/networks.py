@@ -135,6 +135,18 @@ class EdgeGenerator(BaseNetwork):
         x = torch.sigmoid(x)
         return x
 
+    def remove_spectralnorm(self):
+        nn.utils.remove_spectral_norm(list(self.encoder.children())[1])
+        nn.utils.remove_spectral_norm(list(self.encoder.children())[4])
+        nn.utils.remove_spectral_norm(list(self.encoder.children())[7])
+
+        for i in range(8):
+            nn.utils.remove_spectral_norm(list(list((list(self.middle.children())[i]).children())[0])[1])
+            nn.utils.remove_spectral_norm(list(list((list(self.middle.children())[i]).children())[0])[5])
+
+        nn.utils.remove_spectral_norm(list(self.decoder.children())[0])
+        nn.utils.remove_spectral_norm(list(self.decoder.children())[3])
+
 
 class Discriminator(BaseNetwork):
     def __init__(self, in_channels, use_sigmoid=True, use_spectral_norm=True, init_weights=True):

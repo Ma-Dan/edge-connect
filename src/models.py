@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 from .networks import InpaintGenerator, EdgeGenerator, Discriminator
 from .dataset import Dataset
 from .loss import AdversarialLoss, PerceptualLoss, StyleLoss
+from torch.autograd import Variable
+import torch.onnx
 
 
 class BaseModel(nn.Module):
@@ -152,6 +154,9 @@ class EdgeModel(BaseModel):
             gen_loss.backward()
         self.gen_optimizer.step()
 
+    def export(self):
+        dummy_input = Variable(torch.randn(1, 3, 720, 720))
+        torch.onnx.export(self.generator, dummy_input, "edge.onnx", operator_export_type=torch.onnx.OperatorExportTypes.ONNX_ATEN_FALLBACK, verbose=True)
 
 class InpaintingModel(BaseModel):
     def __init__(self, config):
@@ -261,3 +266,7 @@ class InpaintingModel(BaseModel):
 
         gen_loss.backward()
         self.gen_optimizer.step()
+
+    def export(self):
+        dummy_input = Variable(torch.randn(1, 4, 720, 720))
+        torch.onnx.export(self.generator, dummy_input, "inpainting.onnx", verbose=True)
